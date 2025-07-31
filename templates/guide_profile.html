@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}{{ guide.username }} - Guide Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Guide Header -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-4" style="width: 100px; height: 100px;">
+                            <i class="fas fa-user fa-3x text-primary"></i>
+                        </div>
+                        <div>
+                            <h1 class="mb-1">{{ guide.username }}</h1>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-primary me-2">Certified Guide</span>
+                                {% if guide.is_verified %}
+                                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Verified</span>
+                                {% endif %}
+                            </div>
+                            {% if guide.location %}
+                            <p class="text-muted mb-2"><i class="fas fa-map-marker-alt me-1"></i>{{ guide.location }}</p>
+                            {% endif %}
+                            {% if guide.rating > 0 %}
+                            <div class="mb-2">
+                                {% for i in range(5) %}
+                                    {% if i < guide.rating|int %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ms-2 text-muted">({{ guide.total_reviews }} reviews)</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if guide.bio %}
+                    <div class="mb-4">
+                        <h5>About Me</h5>
+                        <p>{{ guide.bio }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="row">
+                        {% if guide.languages %}
+                        <div class="col-md-6 mb-3">
+                            <h6><i class="fas fa-language me-2"></i>Languages</h6>
+                            <p class="mb-0">{{ guide.languages }}</p>
+                        </div>
+                        {% endif %}
+                        {% if guide.experience %}
+                        <div class="col-md-6 mb-3">
+                            <h6><i class="fas fa-briefcase me-2"></i>Experience</h6>
+                            <p class="mb-0">{{ guide.experience }}</p>
+                        </div>
+                        {% endif %}
+                        {% if guide.skills %}
+                        <div class="col-md-6 mb-3">
+                            <h6><i class="fas fa-star me-2"></i>Skills</h6>
+                            <p class="mb-0">{{ guide.skills }}</p>
+                        </div>
+                        {% endif %}
+                        {% if guide.hourly_rate %}
+                        <div class="col-md-6 mb-3">
+                            <h6><i class="fas fa-dollar-sign me-2"></i>Hourly Rate</h6>
+                            <p class="mb-0">${{ "%.2f"|format(guide.hourly_rate) }}/hour</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Contact Guide -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Contact Guide</h5>
+                    <p class="card-text">Interested in booking a tour with {{ guide.username }}?</p>
+                    {% if current_user.is_authenticated and current_user.user_type == 'tourist' %}
+                    <a href="#" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-envelope me-2"></i>Send Message
+                    </a>
+                    {% elif current_user.is_authenticated and current_user.user_type == 'guide' %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Guides cannot contact other guides.
+                    </div>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login to Contact
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Guide Stats -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Guide Statistics</h5>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-primary mb-1">{{ tours|length }}</h4>
+                            <small class="text-muted">Active Tours</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-primary mb-1">{{ guide.total_reviews }}</h4>
+                            <small class="text-muted">Reviews</small>
+                        </div>
+                    </div>
+                    {% if guide.rating > 0 %}
+                    <div class="text-center mt-3">
+                        <div class="mb-2">
+                            {% for i in range(5) %}
+                                {% if i < guide.rating|int %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">Average Rating: {{ "%.1f"|format(guide.rating) }}/5</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tours Section -->
+    {% if tours %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-4">Tours by {{ guide.username }}</h2>
+            <div class="row g-4">
+                {% for tour in tours %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm hover-shadow">
+                        {% if tour.image_url %}
+                        <img src="{{ tour.image_url }}" class="card-img-top" alt="{{ tour.title }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-image fa-3x text-white"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-primary">{{ tour.category.title() }}</span>
+                                <span class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>{{ tour.duration }}h
+                                </span>
+                            </div>
+                            
+                            <h5 class="card-title">{{ tour.title }}</h5>
+                            <p class="card-text text-muted">{{ tour.description[:100] }}{% if tour.description|length > 100 %}...{% endif %}</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-primary fs-5">${{ "%.2f"|format(tour.price) }}</span>
+                                <small class="text-muted">
+                                    <i class="fas fa-users me-1"></i>Max {{ tour.max_group_size }}
+                                </small>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ tour.location }}
+                                </small>
+                                <a href="{{ url_for('tour_detail', tour_id=tour.id) }}" class="btn btn-outline-primary btn-sm">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Reviews Section -->
+    {% if reviews %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Reviews for {{ guide.username }}</h2>
+            <div class="row">
+                {% for review in reviews %}
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="mb-1">{{ review.tourist.username }}</h6>
+                                    <div class="text-warning">
+                                        {% for i in range(5) %}
+                                            {% if i < review.rating %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ review.created_at.strftime('%B %d, %Y') }}</small>
+                            </div>
+                            
+                            <p class="card-text">{{ review.comment }}</p>
+                            
+                            {% if review.tour %}
+                            <div class="mt-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marked-alt me-1"></i>
+                                    Tour: {{ review.tour.title }}
+                                </small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-star fa-4x text-muted mb-3"></i>
+                <h4>No reviews yet</h4>
+                <p class="text-muted">Be the first to review {{ guide.username }}!</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s ease;
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Tours - TourGuide Connect{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-4 fw-bold">Browse Tours</h1>
+            <p class="lead text-muted">Discover amazing experiences with local guides</p>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('search_tours') }}" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="location" name="location" placeholder="Where do you want to go?">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">All Categories</option>
+                                <option value="historical">Historical</option>
+                                <option value="adventure">Adventure</option>
+                                <option value="food">Food & Culinary</option>
+                                <option value="cultural">Cultural</option>
+                                <option value="nature">Nature & Wildlife</option>
+                                <option value="city">City Highlights</option>
+                                <option value="art">Art & Museums</option>
+                                <option value="photography">Photography</option>
+                                <option value="shopping">Shopping</option>
+                                <option value="nightlife">Nightlife</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="max_price" class="form-label">Max Price</label>
+                            <input type="number" class="form-control" id="max_price" name="max_price" placeholder="$">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="duration" class="form-label">Duration</label>
+                            <select class="form-select" id="duration" name="duration">
+                                <option value="">Any Duration</option>
+                                <option value="1-2">1-2 hours</option>
+                                <option value="3-4">3-4 hours</option>
+                                <option value="5-6">5-6 hours</option>
+                                <option value="7+">7+ hours</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tours Grid -->
+    {% if tours.items %}
+    <div class="row g-4">
+        {% for tour in tours.items %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm hover-shadow">
+                {% if tour.image_url %}
+                <img src="{{ tour.image_url }}" class="card-img-top" alt="{{ tour.title }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-image fa-3x text-white"></i>
+                </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-primary">{{ tour.category.title() }}</span>
+                        <span class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ tour.duration }}h
+                        </span>
+                    </div>
+                    
+                    <h5 class="card-title">{{ tour.title }}</h5>
+                    <p class="card-text text-muted">{{ tour.description[:120] }}{% if tour.description|length > 120 %}...{% endif %}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold text-primary fs-5">${{ "%.2f"|format(tour.price) }}</span>
+                        <small class="text-muted">
+                            <i class="fas fa-users me-1"></i>Max {{ tour.max_group_size }}
+                        </small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt me-1"></i>{{ tour.location }}
+                        </small>
+                        <a href="{{ url_for('tour_detail', tour_id=tour.id) }}" class="btn btn-outline-primary btn-sm">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-user me-1"></i>{{ tour.guide.username }}
+                        </small>
+                        {% if tour.guide.rating > 0 %}
+                        <div>
+                            {% for i in range(5) %}
+                                {% if i < tour.guide.rating|int %}
+                                    <i class="fas fa-star text-warning" style="font-size: 0.8rem;"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning" style="font-size: 0.8rem;"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if tours.pages > 1 %}
+    <nav aria-label="Tours pagination" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if tours.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('tours', page=tours.prev_num) }}">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                </li>
+            {% endif %}
+
+            {% for page_num in tours.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                {% if page_num %}
+                    {% if page_num == tours.page %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('tours', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if tours.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('tours', page=tours.next_num) }}">Next</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Next</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <!-- No Tours Found -->
+    <div class="text-center py-5">
+        <i class="fas fa-search fa-4x text-muted mb-3"></i>
+        <h3>No tours found</h3>
+        <p class="text-muted">Try adjusting your search criteria or browse all available tours.</p>
+        <a href="{{ url_for('tours') }}" class="btn btn-primary">View All Tours</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.hover-shadow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s ease;
+}
+</style>
+{% endblock %} 

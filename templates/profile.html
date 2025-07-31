@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - TourGuide Connect{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Profile Information -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-user fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h2 class="mb-1">{{ user.username }}</h2>
+                            <span class="badge bg-primary">{{ user.user_type.title() }}</span>
+                            {% if user.is_verified %}
+                                <span class="badge bg-success ms-1"><i class="fas fa-check-circle me-1"></i>Verified</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <form method="POST" action="" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.bio.label(class="form-label") }}
+                                {{ form.bio(class="form-control", rows=4, placeholder="Tell us about yourself...") }}
+                                {% if form.bio.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.bio.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.location.label(class="form-label") }}
+                                {{ form.location(class="form-control", placeholder="Your location") }}
+                                {% if form.location.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.location.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.languages.label(class="form-label") }}
+                                {{ form.languages(class="form-control", placeholder="e.g., English, Spanish, French") }}
+                                {% if form.languages.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.languages.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.experience.label(class="form-label") }}
+                                {{ form.experience(class="form-control", placeholder="Your experience") }}
+                                {% if form.experience.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.experience.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.skills.label(class="form-label") }}
+                                {{ form.skills(class="form-control", placeholder="e.g., Photography, History, Cooking") }}
+                                {% if form.skills.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.skills.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.interests.label(class="form-label") }}
+                                {{ form.interests(class="form-control", placeholder="e.g., Art, Nature, Food") }}
+                                {% if form.interests.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.interests.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if user.user_type == 'guide' %}
+                        <div class="mb-3">
+                            {{ form.hourly_rate.label(class="form-label") }}
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.hourly_rate(class="form-control", placeholder="Your hourly rate") }}
+                            </div>
+                            {% if form.hourly_rate.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.hourly_rate.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            {{ form.profile_image.label(class="form-label") }}
+                            {{ form.profile_image(class="form-control") }}
+                            {% if form.profile_image.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.profile_image.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Account Stats -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Account Statistics</h5>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h4 class="text-primary mb-1">{{ user.total_reviews }}</h4>
+                                <small class="text-muted">Reviews</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-primary mb-1">{{ "%.1f"|format(user.rating) if user.rating > 0 else "N/A" }}</h4>
+                            <small class="text-muted">Rating</small>
+                        </div>
+                    </div>
+                    {% if user.rating > 0 %}
+                    <div class="text-center mt-2">
+                        {% for i in range(5) %}
+                            {% if i < user.rating|int %}
+                                <i class="fas fa-star text-warning"></i>
+                            {% else %}
+                                <i class="far fa-star text-warning"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                        <a href="{{ url_for('my_bookings') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-calendar me-2"></i>My Bookings
+                        </a>
+                        {% if user.user_type == 'guide' %}
+                        <a href="{{ url_for('create_tour') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>Create Tour
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Information -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Account Information</h5>
+                    <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+                    <p class="mb-1"><strong>Username:</strong> {{ user.username }}</p>
+                    <p class="mb-1"><strong>Member Since:</strong> {{ user.id }} <!-- Replace with actual registration date when available --></p>
+                    <p class="mb-0"><strong>Account Type:</strong> {{ user.user_type.title() }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

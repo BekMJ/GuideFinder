@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Review Tour - TourGuide Connect{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-star fa-3x text-warning mb-3"></i>
+                        <h2 class="fw-bold">Review Your Tour</h2>
+                        <p class="text-muted">Share your experience and help other travelers</p>
+                    </div>
+
+                    <!-- Booking Summary -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Tour Details</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Tour:</strong> {{ booking.tour.title }}</p>
+                                    <p class="mb-1"><strong>Guide:</strong> {{ booking.tour.guide.username }}</p>
+                                    <p class="mb-1"><strong>Date:</strong> {{ booking.booking_date.strftime('%B %d, %Y') }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Location:</strong> {{ booking.tour.location }}</p>
+                                    <p class="mb-1"><strong>Duration:</strong> {{ booking.tour.duration }} hours</p>
+                                    <p class="mb-1"><strong>People:</strong> {{ booking.number_of_people }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review Form -->
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Your Rating</label>
+                            <div class="rating-stars">
+                                {% for i in range(5) %}
+                                <i class="far fa-star star" style="font-size: 2rem; cursor: pointer; color: #ffc107;" data-rating="{{ i + 1 }}"></i>
+                                {% endfor %}
+                            </div>
+                            {{ form.rating(class="d-none") }}
+                            {% if form.rating.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.rating.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Click on the stars to rate your experience</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.comment.label(class="form-label") }}
+                            {{ form.comment(class="form-control" + (" is-invalid" if form.comment.errors else ""), rows="5", placeholder="Share your experience with this tour and guide...") }}
+                            {% if form.comment.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.comment.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Be specific about what you enjoyed and any suggestions for improvement</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Review Guidelines -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-lightbulb text-warning me-2"></i>Review Guidelines</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>What to include:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Overall experience</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Guide's knowledge and professionalism</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Tour organization and timing</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Value for money</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Tips for great reviews:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Be honest and constructive</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Include specific details</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Mention highlights and improvements</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Keep it respectful and helpful</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.star');
+    const ratingInput = document.querySelector('input[name="rating"]');
+    let currentRating = 0;
+
+    stars.forEach((star, index) => {
+        star.addEventListener('click', function() {
+            const rating = index + 1;
+            currentRating = rating;
+            ratingInput.value = rating;
+            updateStars(rating);
+        });
+
+        star.addEventListener('mouseenter', function() {
+            const rating = index + 1;
+            updateStars(rating);
+        });
+
+        star.addEventListener('mouseleave', function() {
+            updateStars(currentRating);
+        });
+    });
+
+    function updateStars(rating) {
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.remove('far');
+                star.classList.add('fas');
+            } else {
+                star.classList.remove('fas');
+                star.classList.add('far');
+            }
+        });
+    }
+
+    // Character counter for comment
+    const commentTextarea = document.querySelector('textarea[name="comment"]');
+    const counter = document.createElement('div');
+    counter.className = 'form-text text-muted';
+    counter.textContent = '0 / 500 characters';
+    commentTextarea.parentNode.appendChild(counter);
+    
+    commentTextarea.addEventListener('input', function() {
+        const length = this.value.length;
+        counter.textContent = `${length} / 500 characters`;
+        
+        if (length > 450) {
+            counter.classList.add('text-warning');
+        } else {
+            counter.classList.remove('text-warning');
+        }
+    });
+
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        if (!ratingInput.value) {
+            event.preventDefault();
+            alert('Please select a rating before submitting your review.');
+            return;
+        }
+        
+        if (commentTextarea.value.length < 10) {
+            event.preventDefault();
+            alert('Please provide a more detailed review (at least 10 characters).');
+            return;
+        }
+    });
+});
+</script>
+
+<style>
+.rating-stars {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.star:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+.fas.fa-star {
+    color: #ffc107 !important;
+}
+
+.far.fa-star {
+    color: #dee2e6 !important;
+}
+</style>
+{% endblock %} 

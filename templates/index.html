@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}TourGuide Connect - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Discover Amazing Tours with Local Guides</h1>
+                <p class="lead mb-4">Connect with knowledgeable local guides for personalized travel experiences. Explore hidden gems, learn about cultural landmarks, and enjoy unforgettable adventures.</p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('tours') }}" class="btn btn-light btn-lg">Browse Tours</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg">Join as Guide</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80" 
+                     alt="Travel Experience" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold">Why Choose TourGuide Connect?</h2>
+                <p class="lead text-muted">Experience travel like never before</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-map-marked-alt fa-2x text-primary"></i>
+                    </div>
+                    <h4>Local Expertise</h4>
+                    <p class="text-muted">Connect with certified local guides who know their regions inside out.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-heart fa-2x text-primary"></i>
+                    </div>
+                    <h4>Personalized Experiences</h4>
+                    <p class="text-muted">Customize tours based on your interests and travel preferences.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-shield-alt fa-2x text-primary"></i>
+                    </div>
+                    <h4>Safe & Trusted</h4>
+                    <p class="text-muted">All guides are verified and reviewed by our community.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Tours Section -->
+{% if featured_tours %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold">Featured Tours</h2>
+                <p class="lead text-muted">Discover our most popular experiences</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% for tour in featured_tours %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow-sm">
+                    {% if tour.image_url %}
+                    <img src="{{ tour.image_url }}" class="card-img-top" alt="{{ tour.title }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-image fa-3x text-white"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary">{{ tour.category.title() }}</span>
+                            <span class="text-muted"><i class="fas fa-clock me-1"></i>{{ tour.duration }}h</span>
+                        </div>
+                        <h5 class="card-title">{{ tour.title }}</h5>
+                        <p class="card-text text-muted">{{ tour.description[:100] }}...</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-primary">${{ "%.2f"|format(tour.price) }}</span>
+                            <a href="{{ url_for('tour_detail', tour_id=tour.id) }}" class="btn btn-outline-primary btn-sm">View Details</a>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt me-1"></i>{{ tour.location }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('tours') }}" class="btn btn-primary btn-lg">View All Tours</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Top Guides Section -->
+{% if top_guides %}
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold">Top-Rated Guides</h2>
+                <p class="lead text-muted">Meet our most trusted local experts</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% for guide in top_guides %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-center h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-user fa-2x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">{{ guide.username }}</h5>
+                        {% if guide.location %}
+                        <p class="text-muted mb-2"><i class="fas fa-map-marker-alt me-1"></i>{{ guide.location }}</p>
+                        {% endif %}
+                        {% if guide.rating > 0 %}
+                        <div class="mb-2">
+                            {% for i in range(5) %}
+                                {% if i < guide.rating|int %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-1 text-muted">({{ guide.total_reviews }})</span>
+                        </div>
+                        {% endif %}
+                        <a href="{{ url_for('guide_profile', guide_id=guide.id) }}" class="btn btn-outline-primary btn-sm">View Profile</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Categories Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold">Explore by Category</h2>
+                <p class="lead text-muted">Find the perfect tour for your interests</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-landmark fa-2x text-primary"></i>
+                    </div>
+                    <h6>Historical</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-mountain fa-2x text-primary"></i>
+                    </div>
+                    <h6>Adventure</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-utensils fa-2x text-primary"></i>
+                    </div>
+                    <h6>Food & Dining</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-theater-masks fa-2x text-primary"></i>
+                    </div>
+                    <h6>Cultural</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-tree fa-2x text-primary"></i>
+                    </div>
+                    <h6>Nature</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-city fa-2x text-primary"></i>
+                    </div>
+                    <h6>City Tours</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-4">Ready to Start Your Adventure?</h2>
+        <p class="lead mb-4">Join thousands of travelers who have discovered amazing experiences with local guides.</p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{{ url_for('register') }}" class="btn btn-light btn-lg">Get Started</a>
+            <a href="{{ url_for('tours') }}" class="btn btn-outline-light btn-lg">Browse Tours</a>
+        </div>
+    </div>
+</section>
+{% endblock %} 
